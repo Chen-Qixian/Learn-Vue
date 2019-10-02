@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>VueInstance</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <p>{{ foo }}</p>
+        <button v-on:click="foo = 'baz'">Change!</button>
+    </div>
+    <script>
+        var data = {
+            a: 1
+        }
+        // 创建Vue实例并初始化绑定数据
+        var vm = new Vue({
+            data: data
+        })
+        console.log(vm.a == data.a); // true
+        // 设置属性会影响原始数据的值，反之亦然
+        vm.a = 2;
+        console.log(data.a); // 2
+        data.a = 3;
+        console.log(vm.a); // 3
+        // 注意只有在初始化实例时就在数据中存在的属性才是“响应式”的 
+        vm.b = 'hi'; // 该操作不会触发视图的任何更新
+        // 如果有属性需要被“响应”，则可在数据初始化时设置一些初值，如下面这种形式
+        /*
+            data: {
+                newTodoText: '',
+                visitCount: 0,
+                hideCompletedTodos: false,
+                todos: [],
+                error: null
+            }
+        */
+        var obj = { foo: 'bar' };
+        // 有一种特殊情况取消了绑定
+        Object.freeze(obj);
+        var app = new Vue({
+            el: '#app',
+            data: obj
+        })
+        // 区分实例属性与实例方法 $
+        console.log(app.$el === document.getElementById('app')); // true
+        console.log(app.$data === obj); // true
+        // $watch('foo', function() {}) 在app.foo属性改变时回调
+        
+    </script>
+</body>
+
+</html>
