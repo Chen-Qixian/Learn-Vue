@@ -67,6 +67,12 @@
         <input v-on:[eventname]="show" placeholder="Focus to change color!">
         <!-- v-bind:[attrname]的缩写 :[attrname]="value" -->
         <!-- v-on:[eventname]的缩写 @[eventname]="doSomething" -->
+        <!-- 修饰符的使用 .stop 阻止默认的冒泡事件 -->
+        <div @click="click1">
+            <div @click.stop="click2">
+                Click Me!
+            </div>
+        </div>
     </div>
 
     <script>
@@ -87,6 +93,12 @@
             methods: {
                 show: function() {
                     this.dynamicId = (this.dynamicId == 'red') ? 'green' : 'red'; 
+                },
+                click1: function() {
+                    console.log('click1...');
+                },
+                click2: function() {
+                    console.log('click2...');
                 }
             }
         })
