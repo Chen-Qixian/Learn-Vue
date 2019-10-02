@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>templateGrammar</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <style>
+        .square {
+            height: 100px;
+            width: 100px;
+        }
+
+        #red {
+            background-color: red;
+        }
+
+        #green {
+            background-color: green;
+        }
+        #list-content {
+            height: 100px;
+            width: 100px;
+            border-radius: 60%;
+            background-color: blue;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 文本插值 -->
+    <!-- 绝对不要为用户提供文本插值，以避免XSS攻击的发生 -->
+    <div id="app">
+        <p>MSG: {{ message }}</p>
+        <!-- v-once控制指令使得绑定数据无法被修改 -->
+        <p v-once>Unchangable MSG: {{ message }}</p>
+        <!-- v-html 将文本插值解释成原始HTML格式, 同时将其属性设置为html内容属性 -->
+        <p v-html="message"></p>
+        <!-- v-bind 指令用于将插值内容赋值给元素属性 -->
+        <div v-bind:id="dynamicId" class="square"></div>
+        <select v-model="dynamicId">
+            <option value="red">red</option>
+            <option value="green">green</option>
+        </select>
+        <div></div>
+        <!-- boolean 属性（只要存在就意味其值为true），当该属性值为false,null,undefined时该属性不存在-->
+        <button v-bind:disabled="isBtnDisabled"></button>
+        <select v-model="isBtnDisabled">
+            <option value="" disabled>isBtnDisabled</option>
+            <option value="true">true</option>
+            <option value="false">false</option>
+        </select>
+        <!-- 可以使用JS表达式 -->
+        <div>
+            <p>{{ number + 1 }}</p>
+            <p>{{ ok ? 'YES' : 'NO' }}</p>
+            <p>{{ toReverse.split('').reverse().join('') }}</p>
+            <div v-bind:id="'list-' + id"></div>
+        </div>
+        <!-- v-bind 绑定属性，使用[]进行动态属性绑定，会对其中内容作为表达式进行求值，注意其中当变量名会被转成小写 -->
+        <a v-bind:[attrname]="url" target="_blank">click me to visit Baidu!</a>
+        <button v-on:click="show">Change!</button>
+    </div>
+
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: {
+                message: '<span style="color: red;"> This should be red! </span>',
+                dynamicId: 'red',
+                isBtnDisabled: false,
+                number: 1,
+                ok: true,
+                toReverse: 'esrever',
+                id: 'content',
+                attrname: 'href',
+                url: 'https://www.baidu.com'
+            },
+            methods: {
+                show: function() {
+                    this.dynamicId = (this.dynamicId == 'red') ? 'green' : 'red'; 
+                }
+            }
+        })
+    </script>
+
+
+</body>
+
+</html>
