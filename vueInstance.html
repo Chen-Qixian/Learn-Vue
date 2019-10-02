@@ -42,7 +42,7 @@
         */
         var obj = { foo: 'bar' };
         // 有一种特殊情况取消了绑定
-        Object.freeze(obj);
+        // Object.freeze(obj);
         var app = new Vue({
             el: '#app',
             data: obj
@@ -50,8 +50,11 @@
         // 区分实例属性与实例方法 $
         console.log(app.$el === document.getElementById('app')); // true
         console.log(app.$data === obj); // true
-        // $watch('foo', function() {}) 在app.foo属性改变时回调
-        
+        // $watch实例方法用于监控该实例下的某一属性值是否发生变化，
+        // 此处点击button，foo属性值发生改变，触发watch效果，两个参数分别为新值和旧值
+        app.$watch('foo', function(newVal, oldVal) {
+            console.log(oldVal, newVal);
+        })
     </script>
 </body>
 
