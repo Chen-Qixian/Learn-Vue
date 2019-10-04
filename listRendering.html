@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>ListRendering</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <!-- v-for遍历数组 -->
+        <ul>
+            <!-- 建议尽可能在使用v-for时为每一项提供唯一key属性，以便Vue能够跟踪每个节点的身份，重用和重新排序现有元素 -->
+            <li v-for="item in items" :key="item.id">
+                {{ item.message }}
+            </li>
+        </ul>
+        <!-- v-for支持第二个参数访问遍历下标，可以访问到父作用域到所有属性，in可替换成of -->
+        <ul>
+            <li v-for="(item, index) in items">
+                {{ parentMessage }} - {{ index }} - {{ item.message }}
+            </li>
+        </ul>
+        <!-- v-for遍历对象 -->
+        <ul>
+            <li v-for="value in object">
+                {{ value }}
+            </li>
+        </ul>
+        <!-- v-for遍历对象支持第二个参数为key名，第三个参数为索引值，遍历顺序Object.keys()可能因不同引擎而异 -->
+        <ul>
+            <li v-for="(value, name, index) in object">
+                {{ index }}. {{ name }} : {{ value }}
+            </li>
+        </ul>
+        <!-- 动态添加嵌套对象属性 -->
+        <ul>
+            <li v-for="item in userProfile">
+                {{ item }}
+            </li>
+        </ul>
+        <!-- 显示过滤/排序的结果 -->
+        Computed:
+        <ul>
+            <li v-for="n in evenNumbers">
+                {{ n }}
+            </li>
+        </ul>
+        Methods:
+        <ul>
+            <li v-for="n in even(numbers)">
+                {{ n }}
+            </li>
+        </ul>
+        <!-- 使用值范围range(从1计数) -->
+        <span v-for="n in 10">{{ n }}</span>
+        <!-- 类似v-if，也可以使用template元素循环渲染多个元素的内容 -->
+        <ul>
+            <template v-for="item in items">
+                <li>{{ item.message }}</li>
+                <li class="divider" role="presentation"></li>
+            </template>
+        </ul>
+        <!-- v-if和v-for不推荐一同使用 -->
+    </div>
+    <script>
+        let vm = new Vue({
+            el: '#app',
+            data: {
+                parentMessage: 'Parent',
+                // 该数组可以使用JS Array提供的方法
+                items: [
+                    { message: 'Foo' },
+                    { message: 'Bar' }
+                ],
+                object: {
+                    title: 'How to do lists in Vue',
+                    author: 'Chris Chen',
+                    publishedAt: '2019-10-04'
+                },
+                userProfile: {
+                    name: 'Chris Chen'
+                },
+                numbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]
+            },
+            computed: {
+                evenNumbers: function () {
+                    return this.numbers.filter(function (number) {
+                        return number % 2 === 0;
+                    })
+                }
+            },
+            methods: {
+                even: function (numbers) {
+                    return numbers.filter(function (number) {
+                        return number % 2 === 0;
+                    })
+                }
+            }
+        })
+
+        // 更新数组状态（变异方法）
+        // pop(), shift(), unshift(), splice(), sort(), reverse() => 变异方法：即修改了原数组的方法
+        vm.items.push({ message: 'Baz' });
+        // 更新数组状态（非变异方法）
+        // filter(), concat(), slice() => 非变异方法：不修改原始数组，而返回新数组。使用上可以用新数组替代旧数组
+
+        vm.items = vm.items.filter(function (item) {
+            return item.message.match(/Foo/);
+        })
+
+        // Vue不能检测以下变动
+        // 1. 利用索引直接设置一个数组项
+        vm.items[1] = { message: 'Baz' }; // 不是响应性的
+        // 2. 直接修改数组长度
+        vm.items.length = 3; // 不是响应性的
+        // 为上述两类问题提供如下解决方案
+        // 1. 使用Vue的set或$set实例方法或splice方法进行替换
+        let indexOfItem = 2;
+        Vue.set(vm.items, indexOfItem, { message: 'Baz' });
+        vm.$set(vm.items, indexOfItem, { message: 'Baz' });
+        vm.items.splice(indexOfItem, 1, { message: 'Baz' });
+        // 2. 使用splice
+        let newLength = 3;
+        vm.items.splice(newLength);
+        // 对于已创建的实例，不能动态添加根级别的响应式属性，但是可以项嵌套对象添加响应式属性
+        Vue.set(vm.userProfile, 'age', 21);
+        vm.$set(vm.userProfile, 'age', 21);
+        // 如果项为已有对象赋值多个新属性，应该用两个对象的属性创建一个新对象
+        vm.userProfile = Object.assign({}, vm.userProfile, {
+            sex: 'male',
+            job: 'front-end engineer'
+        })
+    </script>
+</body>
+
+</html>
