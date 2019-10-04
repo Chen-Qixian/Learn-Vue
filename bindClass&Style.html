@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>BindClassAndStyle</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- 绑定Class -->
+        <!-- 对象语法：语法注意：中间有-连字符的对象属性名需要用字符串形式‘’表达 -->
+        <div
+            class="static"
+            :class="{ 'active': isActive, 'text-danger': hasError }"
+        ></div>
+        <!-- 也可以用对象渲染出与上述方式相同的结果 -->
+        <div :class="classObject"></div>
+        <!-- 也可以绑定计算属性，使之成为另一常用且强大的模式 -->
+        <div :class="classObjectComputed"></div>
+        <!-- 数组语法:从data中取对应属性替换之 -->
+        <div :class="[activeClass, errorClass]"></div>
+        <!-- 数组语法也支持三目运算符和嵌套对象语法 -->
+        <div :class="[isActive ? activeClass: '', errorClass]"></div>
+        <div :class="[{ active: isActive }, errorClass]"></div>
+        <!-- class绑定在组件上:不会覆盖组件定义中的class而是会增加到其上面 -->
+        <my-component class="baz boo"></my-component>
+        <my-component :class="{ active: isActive }"></my-component>
+
+        <!-- 绑定Style -->
+        <!-- 对象语法 -->
+        <div :style="{ color:activeColor, fontSize: fontSize + 'px' }">Bind Style for the text!</div>
+        <div :style="styleObject">Using style object to bind style for the text!</div>
+        <div :style="styleObjectComputed">Using computed style object to bind style for the text!</div>
+        <!-- 数组语法 -->
+        <div :style="[baseStyle, overridingSytles]">Array Styles</div>
+        <!-- 自动添加前缀：vue自动添加浏览器引擎需要的CSS前缀-webkit -o -moz -->
+        <!-- 多重值：只会渲染数组中最后一个被浏览器支持的值，如本例若浏览器支持不带前缀的flexbox则只会渲染display:flex -->
+        <div :style="{ display: ['-webkit-box', '-ms-flexbox', 'flex'] }"></div>
+    </div>
+    <script>
+        Vue.component('my-component', {
+            template: '<p class="foo bar">Hi</p>'
+        })
+        var vm = new Vue({
+            el: '#app',
+            data: {
+                isActive: true,
+                hasError: true,
+                classObject: {
+                    'active': true,
+                    'text-danger': false
+                },
+                error: null,
+                activeClass: 'active',
+                errorClass: 'text-danger',
+                activeColor: 'red',
+                fontSize: 20,
+                styleObject: {
+                    color: 'blue',
+                    fontSize: '16px'
+                },
+                baseStyle: {
+                    color: 'green'
+                },
+                overridingSytles: {
+                    fontSize: '24px',
+                    'text-align': 'center'
+                }
+            },
+            computed: {
+                classObjectComputed: function() {
+                    return {
+                        'active': this.isActive && !this.error,
+                        'text-danger': this.error && this.error.type === 'fatal'
+                    }
+                },
+                styleObjectComputed: function() {
+                    return {
+                        'color': this.activeColor,
+                        'fontSize': this.fontSize + 'px'
+                    }
+                }
+            }
+        })
+        
+    </script>
+</body>
+</html>
