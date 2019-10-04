@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>calAttr&Listener</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@0.12.0/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.13.1/lodash.min.js"></script>
+</head>
+
+<body>
+    <!-- 计算属性 -->
+    <div id="example">
+        <p>Original message: {{ message }}</p>
+        <p>Computed message: {{ reversedMessage }}</p>
+        <p>Method message: {{ reversedMessageMethod() }}</p>
+        <p>Date now: {{ now }}</p>
+    </div>
+    <!-- 侦听属性 -->
+    <div id="demo">
+        watch attr: {{ fullName }}
+    </div>
+    <!-- 侦听器 -->
+    <div id="watch-example">
+        <p>
+            Ask a yes/no question:
+            <input v-model="question">
+        </p>
+        <p>{{ answer }}</p>
+    </div>
+    <script>
+        var app = new Vue({
+            el: '#example',
+            data: {
+                message: 'Hello'
+            },
+            // 任何复杂逻辑，应当使用计算属性
+            computed: {
+                reversedMessage: function () {
+                    // this指向app这个Vue实例，reversedMessage方法绑定message
+                    return this.message.split('').reverse().join('');
+                },
+                // Date.now()不是响应式依赖，因此不会更新。如果不希望有缓存，请用方法执行代替之
+                now: function () {
+                    return Date.now();
+                }
+            },
+            methods: {
+                // 计算属性&方法之间的区别在于：计算属性基于响应式依赖进行缓存，即除非message改变，computed计算属性不会重新求值
+                // 而每当触发重新渲染时，方法总会重新执行函数
+                reversedMessageMethod: function () {
+                    return this.message.split('').reverse().join('');
+                }
+            }
+        })
+        var vm = new Vue({
+            el: '#demo',
+            data: {
+                firstName: 'Foo',
+                lastName: 'Bar'
+            },
+            computed: {
+                // 侦听属性的getter
+                fullName: {
+                    // getter: 在插值文本模板中被调用
+                    get: function() {
+                        return this.firstName + ' ' + this.lastName;
+                    },
+                    // setter: 调用vm.fullname = 'xxx'赋值时会自动调用set方法
+                    set: function(newVal) {
+                        var names = newVal.split(' ');
+                        this.firstName = names[0];
+                        this.lastName = names[names.length - 1];
+                    }
+                }
+            }
+        })
+        // 有时需要在数据变化时执行异步/开销大的操作，响应数据变化。此时计算属性不足以满足要求，必须自定义一个侦听器watch
+        var watchExVm = new Vue({
+            el: '#watch-example',
+            data: {
+                question: '',
+                answer: 'I cannot give you an answer until you ask a question!'
+            },
+            watch: {
+                // watch侦听器下的属性一旦发生改变就会触发响应函数
+                question: function(newQuestion, oldQuestion) {
+                    this.answer = 'Waiting for you to stop typing...';
+                    this.debouncedGetAnswer();
+                }
+            },
+            created: function() {
+                // _.debounce是一个由Lodash已经实现好的防抖函数，用于限制访问API的频率
+                this.debouncedGetAnswer = _.debounce(this.getAnswer, 500);
+            },
+            methods: {
+                getAnswer: function() {
+                    if(this.question.indexOf('?') == -1) {
+                        this.answer = 'Questions usually contain a question mark. :-)';
+                        return;
+                    }
+                    this.answer = 'Thinking...';
+                    var that = this;
+                    // axios方法调用API，API调用为异步操作，因此需要使用自定义一个侦听器
+                    axios.get('https://yesno.wtf/api')
+                         .then(function(response) {
+                             that.answer = _.capitalize(response.data.answer);
+                         })
+                         .catch(function(error) {
+                             that.answer = 'Error! Could not reach the API';
+                         })
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>
