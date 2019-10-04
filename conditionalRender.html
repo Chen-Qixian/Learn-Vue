@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>ConditionalRendering</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <!-- v-if指令表达式(对其中对表达式进行求值)返回为truthy(不只有true)时被渲染 -->
+        <h1 v-if="awesome">Vue is awesome</h1>
+        <h1 v-else>Oh no!</h1>
+        <!-- 利用template元素构建v-if条件渲染分组，最终template元素被隐藏，元素下包含的内容为一个受同一条件控制 -->
+        <template v-if="ok">
+            <h1>Title</h1>
+            <p>Paragraph 1</p>
+            <p>Paragraph 2</p>
+        </template>
+        <!-- 使用v-else / v-else-if -->
+        <div v-if="Math.random() > 0.5">
+            Now you see me
+        </div>
+        <div v-else>
+            Now you don't
+        </div>
+        <div v-if="type === 'A'">
+            A
+        </div>
+        <div v-else-if="type === 'B'">
+            B
+        </div>
+        <div v-else-if="type === 'C'">
+            C
+        </div>
+        <div v-else>
+            Not A/B/C at all!
+        </div>
+        <!-- 使用key管理可复用的元素 -->
+        <!-- 不添加key时：label和input元素均被复用：即只替换input placeholder中的内容，用户输入内容不会被替换 -->
+        <template v-if="loginType === 'username'">
+            <label>Username</label>
+            <input placeholder="Enter your username">
+        </template>
+        <template v-else>
+            <label>Email</label>
+            <input placeholder="Enter your email add">
+        </template>
+        <button @click="toggle">Toggle login type</button>
+        <div></div>
+        <!-- 若要区分，即不复用，则需要通过key来进行管理。此处label不会被复用，因为他没有key；而两个input时彼此独立的 -->
+        <h3>key to distinguish</h3>
+        <template v-if="loginType === 'username'">
+            <label>Username</label>
+            <input placeholder="Enter your username" key="username-input">
+        </template>
+        <template v-else>
+            <label>Email</label>
+            <input placeholder="Enter your email add" key="emailadd-input">
+        </template>
+        <!-- v-show与v-if不同，元素总是被渲染，只不过改变该元素的display属性。v-show不支持template也不支持v-else -->
+        <!-- 如果频繁切换则使用v-show，若运行时很少改变，则推荐使用v-if -->
+        <div v-show="ok">display:block(this is visible)</div>
+        <!-- 不推荐同时使用v-if和v-for，同时使用时，v-for具有更高优先级 -->
+    </div>
+
+    <script>
+        var vm = new Vue({
+            el: '#app',
+            data: {
+                awesome: 1,
+                ok: 'hello',
+                type: 'A',
+                loginType: 'username'
+            },
+            methods: {
+                toggle: function () {
+                    if (this.loginType === 'username') {
+                        this.loginType = 'emailadd';
+                    }
+                    else {
+                        this.loginType = 'username';
+                    }
+                }
+            }
+        })    
+    </script>
+</body>
+
+</html>
