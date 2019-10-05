@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>FormInputBinding</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- 单行文本 -->
+        <input type="text" v-model="message" placeholder="edit me">
+        <p>Message is: {{ message }}</p>
+        <!-- 多行文本 -->
+        <span>Multiline message is:</span>
+        <p style="white-space: pre-line">{{ multiMsg }}</p><br>
+        <textarea cols="30" rows="3" v-model="multiMsg" placeholder="add multiple lines"></textarea><br>
+        <!-- 复选框 -->
+        <!-- 单个复选框：有true/false两个值，label for属性使得点击文本也可选择 -->
+        <input type="checkbox" id="check" v-model="checked">
+        <label for="check">{{ checked }}</label><br>
+        <!-- 多个复选框：value属性会被写入data的v-model数组中 -->
+        <input type="checkbox" id="jack" value="Jackk" v-model="checkedNames">
+        <label for="jack">Jack</label>
+        <input type="checkbox" id="jone" value="Jonee" v-model="checkedNames">
+        <label for="jone">Jone</label>
+        <input type="checkbox" id="mike" value="Mikee" v-model="checkedNames">
+        <label for="mike">Mike</label><br>
+        <span>Checked names: {{ checkedNames }}</span><br>
+        <!-- 单选按钮：绑定到同一个v-model自动认为是一组单选按钮 -->
+        <input type="radio" id="one" value="One" v-model="picked">
+        <label for="one">One</label>
+        <input type="radio" id="two" value="Two" v-model="picked">
+        <label for="two">Two</label><br>
+        <span>Picked: {{ picked }}</span>
+        <!-- 选择框 -->
+        <!-- 单选选择框 -->
+        <select v-model="selected">
+            <!-- 推荐第一个选项提供一个值为空的禁用选项，以兼容IOS -->
+            <option disabled value="">Please make a choice</option>
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+        </select>   
+        <span>Selected: {{ selected }}</span><br>
+        <!-- 多选选择框 -->
+        <select v-model="multiSelected" multiple style="width: 50px">
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+        </select>
+        <span>Selected: {{ multiSelected }}</span><br>
+        <!-- 使用v-for动态渲染选项 -->
+        <select v-model="forSelected">
+            <option value="" disabled>Please make a choice</option>
+            <option v-for="option in options" :value="option.value">
+                {{ option.text }}
+            </option>
+        </select>
+        <span>Selected: {{ forSelected }}</span><br>
+        <!-- 值绑定（可以将value绑定至v-model） -->
+        <!-- 当选中时，'picked'为字符串'a' -->
+        <input type="radio" v-model="picked" value="a">{{ picked }}<br>
+        <!-- toggle为true或false -->
+        <input type="checkbox" v-model="toggle">{{ toggle }}<br>
+        <!-- 当选中第一个选项时，select为字符串abc -->
+        <select v-model="selected">
+            <option value="abc">ABC</option>{{ selected }}
+        </select><br>
+        <!-- 复选框 -->
+        <input type="checkbox" v-model="toggle" true-value="yes" false-value="no">{{ toggle }}<br>
+        <!-- 单选按钮 -->
+        <input type="radio" v-model="pick" :value="a"><br>
+        <!-- 选择框的选项 -->
+        <select v-model="selectedObj">
+            <option :value="{ number: 123 }">123</option>
+        </select><br>
+        <!-- 修饰符 -->
+        <!-- .lazy change而非input更新 效果：只有当输入结束失去焦点才会更新结果，而非随着键入直接更新结果 -->
+        .lazy:<input type="text" v-model.lazy="msg"><br>
+        <p>Lazy input result is : {{ msg }}</p>
+        <!-- .number转化为数值类型 -->
+        .number: <input type="number" v-model.number="age"><br>
+        <p>number is: {{ age }}</p>
+        <!-- .trim 消除首位空格-->
+        .trim: <input type="text" v-model.trim="emailadd">
+        <p>string after trim: {{ emailadd }}</p>
+    </div>
+
+    <script>
+        var vm = new Vue({
+            el: '#app',
+            data: {
+                message: '',
+                multiMsg: '',
+                checked: false,
+                checkedNames: [],
+                picked:'',
+                selected: '',
+                multiSelected: [],
+                forSelected: '',
+                toggle: false,
+                pick: '',
+                selectedObj: {},
+                a: 'a',
+                msg: '',
+                age: 0,
+                emailadd: '',
+                options: [
+                    { value: 'One', text: 'One'},
+                    { value: 'Two', text: 'Two'},
+                    { value: 'Three', text: 'Three'},
+                ]      
+            }
+        })
+    </script>
+</body>
+</html>
