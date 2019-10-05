@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>EventHandler</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+    <!-- 
+        在HTML中监听事件的好处
+        1. 看一下HTML模板即可轻松定位在JS中对应的方法
+        2. 无需在JS中手动绑定事件，ViewModel代码与DOM完全解耦，易于测试
+        3. ViewModel被销毁时，Listener被自动删除，无需手动清理
+    -->
+    <div id="app">
+        <button @click="counter += 1">Add1</button>
+        <p>The button above has been clicked {{ counter }} times.</p>
+        <button @click="greet">Greet</button>
+        <button @click="say('hi')">Say hi</button>
+        <button @click="say('what')">Say what</button>
+        <!-- 使用特殊变量$event访问原始DOM事件 -->
+        <button @click="warn('Form cannot be submitted yet.', $event)">
+            Submit
+        </button>
+
+        <!-- 事件修饰符 -->
+        <!-- 阻止单击事件传播 -->
+        <a @click.stop="doThis"></a>
+        <!-- 提交事件不重载页面 -->
+        <form @submit.prevent="onSubmit"></form>
+        <!-- 修饰符可以串联 -->
+        <a @click.stop.prevent="doThat"></a>
+        <!-- 只有修饰符 -->
+        <form @submit.prevent></form>
+        <!-- 添加事件监听器事件捕获模式 -->
+        <div @click.capture="doThis">...</div>
+        <!-- 只当event.target是当前元素自身时触发处理函数 -->
+        <div @click.self="doThat">...</div>
+        <!-- 点击事件只触发一次 -->
+        <a @click.once="doThis"></a>
+        <!-- 不阻止默认行为：.prevent失效，二者不要混用。.passive尤其能提升移动端性能 -->
+        <div @scroll.passive="onScroll">...</div>
+
+        <!-- 按键修饰符：当触发特定当键盘按键行为时触发回调 -->
+        <!-- 当抬起回车时，调用vm.submit() -->
+        Enter to modify 'name':<input v-model="context" @keyup.enter="submit"><br> 
+        <!-- KeyEvent.KeyCode方式调用 vue提供了绝大多数按键码 还可以自定义按键码 -->
+
+        <!-- 系统修饰符：在按下相应按键时菜触发鼠标/键盘事件监听器 ：.ctrl .alt .shift .meta -->
+        <!-- Alt + C : 调用 vm.clear()-->
+        Alt + C to Clear:<input v-model="context" @keyup.alt.67="clear">
+        <!-- Ctrl + Click -->
+        <div @click.ctrl="doSomething">Do Something</div>
+        <!-- 注意：上述系统修饰符在触发时必须处于按下状态。 如项使用ctrl释放触发功能，请使用keyCode，如下 -->
+        <div @keyup.17="doSomething"></div>
+        <!-- 精确组合键控制.exact，有且只有ctrl按下才点击被触发（不能有多余的系统修饰符按下） -->
+        Exact alt:<button @click.alt.exact="doSomething"></button><br>
+        <!-- 没有任何系统修饰符按下时才触发 -->
+        No system:<button @click.exact="doSomething"></button><br>
+        <!-- 鼠标按钮修饰符，左/中/右 .left/.middle/.right-->
+        Only Right Click:<button @click.right="doSomething"></button>
+    </div>
+    <script>
+        // 自定义按键码
+        Vue.config.keyCodes.f1 = 112;
+
+        var vm = new Vue({
+            el: '#app',
+            data: {
+                counter: 0,
+                name: 'Vue.js',
+                context: ''
+            },
+            methods: {
+                greet: function(event) {
+                    // 'this'在方法中指向当前Vue实例
+                    alert('Hello ' + this.name + '!');
+                    if(event) {
+                        alert(event.target.tagName);
+                    }
+                },
+                say: function(message) {
+                    alert(message);
+                },
+                warn: function(message, event) {
+                    if(event) event.preventDefault();
+                    alert(message);
+                },
+                submit: function() {
+                    this.name = this.context;
+                },
+                clear: function() {
+                    this.context = '';
+                },
+                doThis: function() {
+                    alert('doThis');
+                },
+                doThat: function() {
+                    alert('doThat');
+                },
+                doSomething: function() {
+                    alert('doSomething');
+                }
+            }
+        })
+
+    </script>
+</body>
+</html>
