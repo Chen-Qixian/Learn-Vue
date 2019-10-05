@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Components</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <style>
+        .demo-alert-box{
+            border: 1px solid red;
+            background-color: #f40;
+            padding: 5px;
+            font-size: 14px;
+            text-align: center;
+            line-height: 20px;
+            height: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="component-demo">
+        <!-- 组件可以任意次复用 -->
+        <button-counter></button-counter>
+        <button-counter></button-counter>
+        <button-counter></button-counter>
+    </div>
+    <div id="blog-post-demo">
+        <!-- 可以用v-bind动态传递prop的值 -->
+        <blog-post v-for="post in posts" :key="post.id" :title="post.title"></blog-post>
+    </div>
+    <div id="complicated-blog-demo">
+        <div :style="{ fontSize: postFontSize + 'em' }">
+            <complicated-post v-for="post in posts" :key="post.id" :post="post" @enlarge-text="changeFontSize">
+            </complicated-post>
+        </div>
+    </div>
+    <div id="app">
+        <!-- 理解v-model实现双向绑定原理 -->
+        <input type="text" v-model="searchText" placeholder="v-model">
+        <!-- 等价于下面这种写法 -->
+        <input type="text" :value="searchText" @input="searchText = $event.target.value" placeholder="manued v-model">
+        This is shown by input: {{ searchText }} <br>
+        <!-- 自定义组件的双向绑定原理 -->
+        <!-- 但是对于自定义组件，必须将其value属性绑定到名为value的prop上，触发input时，应该将新的值通过自定义input事件抛出 -->
+        <custom-input v-model="searchTextSelf"></custom-input>
+        This is self defined input: {{ searchTextSelf }}
+        <alert-box>
+            Something bad happened.
+        </alert-box>
+    </div>
+
+    <script>
+        Vue.component('button-counter', {
+            // data必须是一个函数，每个实例可维护一份被返回对象的独立的拷贝
+            // 意义：使得每个组件的数据信息相互独立（否则三个实例化得到的按钮之间的数据会相互关联）
+            data: function () {
+                return {
+                    count: 0
+                }
+            },
+            template: '<button @click="count ++">You clicked me {{ count }} times!</button>'
+        })
+        new Vue({ el: '#component-demo' });
+        Vue.component('blog-post', {
+            props: ['title'],
+            template: '<h3>{{ title }}</h3>'
+        })
+        new Vue({
+            el: '#blog-post-demo',
+            data: {
+                posts: [
+                    { id: 1, title: 'My journey with Vue' },
+                    { id: 2, title: 'Blogging with Vue' },
+                    { id: 3, title: 'Why Vue is so fun' }
+                ]
+            }
+        });
+        // 当blog-post的内容助教增多变得复杂时，可以构建单个根元素（对象方式）
+        // template使用ES6模板字符串
+        // $emit发射事件，可以传第二个参数，通过$event接收这个抛出的值 / 事件响应函数是一个方法，这个值会作为第一个参数传入方法
+        Vue.component('complicated-post', {
+            props: ['post'],
+            template: `
+                <div class="complicated-blog-post">
+                    <h3>{{ post.title }}</h3>
+                    <div v-html="post.content"></div>
+                    <button @click="$emit('enlarge-text', 0.1)">
+                    Enlarge text
+                    </button>
+                </div>   
+            `
+        })
+        new Vue({
+            el: '#complicated-blog-demo',
+            data: {
+                posts: [
+                    { id: 1, title: 'My journey with Vue', content: '<p style="color: red">journey with Vue</p>' },
+                    { id: 2, title: 'Blogging with Vue', content: '<p style="color: green">blogging with Vue</p>' },
+                    { id: 3, title: 'Why Vue is so fun', content: '<p style="color: blue">Having fun with Vue</p>' }
+                ],
+                postFontSize: 1
+            },
+            methods: {
+                changeFontSize: function (enlargeAmount) {
+                    this.postFontSize += enlargeAmount;
+                }
+            }
+        })
+        Vue.component('custom-input', {
+            props: ['value'],
+            template: `
+                <input
+                 :value="value"
+                 @input="$emit('input', $event.target.value)"
+                 placeholder="custom-input"
+                >
+            `
+        })
+        // 使用插槽 slot 可以轻松地插入内容。
+        Vue.component('alert-box', {
+            template: `
+                <div class="demo-alert-box">
+                    <strong>Error!</strong>
+                    <slot></slot>
+                </div>
+            `
+        })
+        new Vue({
+            el: '#app',
+            data: {
+                searchText: '',
+                searchTextSelf: ''
+            }
+        })
+    </script>
+</body>
+
+</html>
