@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Prop</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+    <!-- html属性名大小写不敏感，因此注册props在DOM中使用时，需要将camelCase转化成等价的kebab-case -->
+    <div id="app">
+        <!-- 为prop传入一个静态的值 -->
+        <blog-post1 
+            post-title="Hello World!"
+        ></blog-post1>
+        <!-- 动态绑定prop的值 -->
+        <!-- 即便传递的值是静态的也需要通过v-bind，这是一个JS表达式而非字符串 -->
+        <blog-post2
+            :title="post.title"
+            :likes="42"
+            :is-published="false"
+            :comment-ids="[234,567,890]"
+            :author="{
+                name: 'Chris.Chen',
+                company: 'ColorfulCloudsTech.'
+            }"
+        ></blog-post2>
+        <!-- 动态赋值表达式给prop -->
+        <!-- 如果要传递一个对象的所有属性，可以使用不带参数的v-bind取代 -->
+        <blog-post3
+            :title="post.title + ' by ' + post.author.name"
+            :likes="post.likes"
+            :is-published="post.isPublished"
+            :comment-ids="post.commentIds"
+            :author="post.author"
+            v-bind="postContent"
+        ></blog-post3>
+    </div>  
+    <script>
+        Vue.component('blog-post1', {
+            // JavaScript中是camelCase命名的
+            props: ['postTitle'],
+            template: `
+                <h2> {{ postTitle }} </h2>
+            `
+        })
+        Vue.component('blog-post2', {
+            // 字符串形式列出的prop（在数组中）
+            props: ['title', 'likes', 'isPublished', 'commentIds', 'author'],
+            // 此处必须注意Vue要求的单根元素原则，必须将模板的内容包含在一个大的外层根元素下
+            template: `
+            <div class="blog-post">
+                <h3> {{ title }} </h3>
+                <div> likes: {{ likes }}</div>
+                <div> isPublished: {{ isPublished }} </div>
+                <div> commentIds: {{ commentIds }} </div>
+                <div> author: {{ author }} </div>
+            </div>
+            `
+        })
+        Vue.component('blog-post3', {
+            // 对象形式列出prop，名称和值分别来自各个prop的名称和类型，用这种形式可以编写prop验证
+            props: {
+                title: String,
+                likes: Number,
+                isPublished: Boolean,
+                commentIds: Array,
+                author: Object,
+                callback: Function,
+                contactsPromise: Promise,
+                id: Number,
+                content: String
+            },
+            template: `
+            <div class="blog-post">
+                <h3> {{ title }} </h3>
+                <div> likes: {{ likes }}</div>
+                <div> isPublished: {{ isPublished }} </div>
+                <div> commentIds: {{ commentIds }} </div>
+                <div> author: {{ author }} </div>
+                <div> id: {{ id }} : {{ content }} </div>
+            </div>
+            `
+        })
+        function Person(firstName, lastName) {
+            this.firstName = firstName;
+            this.lastName = lastName;
+        }
+        Vue.component('blog-post4', {
+            // 编写prop验证
+            props: {
+                // 基础类型检查（‘null’和‘undefined’能通过任何类型验证
+                propA: Number,
+                // 多个可能类型
+                propB: [String, Number],
+                // 必填的字符串
+                propC: {
+                    type: String,
+                    required: true
+                },
+                // 带有默认值的数字
+                propD: {
+                    type: Number,
+                    default: 100
+                },
+                // 带有默认值的对象
+                propE: {
+                    type: Object,
+                    // 默认值必须通过工厂函数获取
+                    default: function() {
+                        return { message: 'hello' }
+                    }
+                },
+                // 自定义验证函数
+                propF: {
+                    validator: function(value) {
+                        // 此值必须匹配下列字符串中的一个
+                        return ['success', 'warinint', 'danger'].indexOf(value) !== -1;
+                    }
+                },
+                // type可以是自定义的构造函数，通过instanceof来检查确认
+                student: Person
+            }
+        })
+        new Vue({
+            el: '#app',
+            data: {
+                post: {
+                    title: 'My journey with Vue',
+                    author: {
+                        name: 'Chris Chen',
+                        company: 'Colorful Clouds Tech.'
+                    },
+                    likes: 50,
+                    commentIds: [123,456,789]
+                },
+                postContent: {
+                    id: 1,
+                    content: 'Fantastic Vue!'
+                }
+            }
+        })
+    </script>
+</body>
+</html>
