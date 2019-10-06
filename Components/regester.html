@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Register</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+    <!-- 切记：全局注册一定发生在根实例创建之前！ -->
+    <div id="app">
+        <component-a></component-a>
+        <component-b></component-b>
+        <component-c></component-c>
+        <component-d></component-d>
+    </div>
+    <script>
+        // 组件命名建议用连字符
+        // 全局注册方式:注册后可以用在任何创建的Vue根实例模板中
+        Vue.component('component-a', {
+            data: function() {
+                return {
+                    count: 0
+                }
+            },
+            template: `
+                <button @click="count ++">I've been clicked {{ count }} times</button>
+            `
+        })
+        Vue.component('component-b', {
+            data: function() {
+                return {
+                    count: 0
+                }
+            },
+            template: `
+                <button @click="count += 2">I've been clicked {{ count }} times</button>
+            `
+        })
+        Vue.component('component-c', {
+            data: function() {
+                return {
+                    count: 0
+                }
+            },
+            template: `
+                <button @click="count += 3">I've been clicked {{ count }} times</button>
+            `
+        })
+        var ComponentE = {
+            data: function() {
+                return {
+                    count: 0
+                }
+            },
+            template: `
+                <button @click="count += 5">I've been clicked {{ count }} times</button>
+            `
+        }
+        // 局部注册方式，使用JS Object
+        // 局部注册的组件在其子组件中不可用，如希望ComponentE在ComponentD中可用，需要在其中再次局部注册
+        var ComponentD = {
+            data: function() {
+                return {
+                    count: 0
+                }
+            },
+            template: `
+                <button @click="count += 4">I've been clicked {{ count }} times</button>
+            `,
+            components: {
+                'component-e': ComponentE
+            }
+        }
+        new Vue({
+            el: '#app',
+            // 组件的局部注册
+            components: {
+                'component-d': ComponentD
+            }
+        })
+    </script>
+    
+</body>
+</html>
