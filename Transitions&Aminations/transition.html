@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Transition</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/animate.css@3.5.1" rel="stylesheet" type="text/css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/velocity/1.2.3/velocity.min.js"></script>
+    <style>
+        .fade-enter-active,
+        .fade-leave-active {
+            transition: opacity .5s;
+        }
+
+        .fade-enter,
+        .fade-leave-to {
+            opacity: 0;
+        }
+
+        .slide-fade-enter-active {
+            transition: all .3s ease;
+        }
+
+        .slide-fade-leave-active {
+            transition: all .8s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+        }
+
+        .slide-fade-enter,
+        .slide-fade-leave-to {
+            transform: translateX(10px);
+            opacity: 0;
+        }
+
+        .bounce-enter-active {
+            animation: bounce-in .5s;
+        }
+
+        .bounce-leave-active {
+            animation: bounce-in .5s reverse;
+        }
+
+        @keyframes bounce-in {
+            0% {
+                transform: scale(0);
+            }
+
+            50% {
+                transform: scale(1.5);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .component-fade-enter-active, .component-fade-leave-active {
+            transition: opacity .3s ease;
+        }
+
+        .component-fade-enter, .component-fade-leave-to {
+            opacity: 0;
+        }
+
+        .list-item {
+            display: inline-block;
+            margin-left: 10px;
+        }
+
+        .list-enter-active, .list-leave-active {
+            transition: all 1s;
+        }
+
+        .list-enter, .list-leave-to {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 第 1 个简单的例子 -->
+    <div id="demo">
+        <button @click="show = !show">
+            Toggle
+        </button>
+        <transition name="fade">
+            <p v-if="show">Hello World!</p>
+        </transition>
+    </div>
+    <!-- 使用CSS过渡的一个简单例子 -->
+    <div id="demo1">
+        <button @click="show = !show">
+            Toggle render
+        </button>
+        <transition name="slide-fade">
+            <p v-if="show">CSS Demo1</p>
+        </transition>
+    </div>
+    <!-- 使用CSS动画的一个简单例子 -->
+    <div id="demo2">
+        <button @click="show = !show">
+            Toggle show
+        </button>
+        <transition name="bounce">
+            <p v-if="show">
+                This is a demo using CSS animation
+            </p>
+        </transition>
+    </div>
+    <!-- 自定义过渡类名，适用第三方组件库，以animation.css为例 -->
+    <div id="demo3">
+        <button @click="show = !show">
+            Toggle animation
+        </button>
+        <transition name="custom-classes-transition" enter-active-class="animated tada"
+            leave-active-class="animated bounceOutRight">
+            <p v-if="show">Hello This is animate.css demo</p>
+        </transition>
+    </div>
+    <!-- 使用JavaScript钩子，VelocityJS的例子，Velocity.js 是一个非常好的用来实现JS动画的工具-->
+    <div id="demo4">
+        <button @click="show = !show">
+            Toggle JS hook
+        </button>
+        <!-- 当仅加载JS动画时，建议添加:css="false"，从而避免CSS造成的干扰 -->
+        <transition @before-enter="beforeEnter" @enter="enter" @leave="leave" :css="false">
+            <p v-if="show">Hello This is Velocity.js demo</p>
+        </transition>
+    </div>
+    <!-- 多组件过渡 -->
+    <div id="demo5">
+        <input type="radio" v-model="view" value="v-a">A
+        <input type="radio" v-model="view" value="v-b">B
+        <transition name="component-fade" mode="out-in">
+            <component :is="view"></component>
+        </transition>
+    </div>
+    <!-- 列表过渡 -->
+    <div id="demo6">
+        <button @click="add">Add</button>
+        <button @click="remove">Remove</button>
+        <!-- 过渡组，默认为span，可以使用tag修改元素类型 -->
+        <transition-group name="list" tag="p">
+            <span v-for="item in items" :key="item" class="list-item">
+                {{ item }}
+            </span>
+        </transition-group>
+    </div>
+    <script>
+        let vm = new Vue({
+            el: '#demo',
+            data: {
+                show: true
+            }
+        })
+        let vm1 = new Vue({
+            el: '#demo1',
+            data: {
+                show: true
+            }
+        })
+        let vm2 = new Vue({
+            el: '#demo2',
+            data: {
+                show: true
+            }
+        })
+        let vm3 = new Vue({
+            el: '#demo3',
+            data: {
+                show: true
+            }
+        })
+        let vm4 = new Vue({
+            el: '#demo4',
+            data: {
+                show: false
+            },
+            methods: {
+                beforeEnter: function (el) {
+                    el.style.opacity = 0;
+                    el.style.transformOrigin = 'left';
+                },
+                enter: function (el, done) {
+                    Velocity(el, { opacity: 1, fontSize: '1.4em' }, { duration: 300 });
+                    Velocity(el, { fontSize: '1em' }, { complete: done });
+                },
+                leave: function(el, done) {
+                    Velocity(el, { translateX: '15px', rotateZ: '50deg' }, { duration: 600 });
+                    Velocity(el, { rotateZ: '100deg'}, { loop: 2 });
+                    Velocity(el, {
+                        rotateZ: '45deg',
+                        translateX: '30px',
+                        translateY: '30px',
+                        opacity: 0
+                    }, { complete: done })
+                }
+            }
+        })
+        let vm5 = new Vue({
+            el: '#demo5',
+            data: {
+                view: 'v-a'
+            },
+            components: {
+                'v-a': {
+                    template: `<div>component A</div>`
+                },
+                'v-b': {
+                    template: `<div>component B</div>`
+                } 
+            }
+        })
+        let vm6 = new Vue({
+            el: '#demo6',
+            data: {
+                items: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+                nextNum: 10
+            },
+            methods: {
+                add: function() {
+                    this.items.splice(this.randomIndex(), 0, this.nextNum ++);
+                },
+                remove: function() {
+                    this.items.splice(this.randomIndex(), 1);
+                },
+                randomIndex: function() {
+                    return Math.floor(Math.random() * this.items.length);
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>
