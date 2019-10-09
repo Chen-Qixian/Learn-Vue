@@ -9,6 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/animate.css@3.5.1" rel="stylesheet" type="text/css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/velocity/1.2.3/velocity.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.14.1/lodash.min.js"></script>
     <style>
         .fade-enter-active,
         .fade-leave-active {
@@ -56,11 +57,13 @@
             }
         }
 
-        .component-fade-enter-active, .component-fade-leave-active {
+        .component-fade-enter-active,
+        .component-fade-leave-active {
             transition: opacity .3s ease;
         }
 
-        .component-fade-enter, .component-fade-leave-to {
+        .component-fade-enter,
+        .component-fade-leave-to {
             opacity: 0;
         }
 
@@ -69,13 +72,35 @@
             margin-left: 10px;
         }
 
-        .list-enter-active, .list-leave-active {
+        .list-enter-active,
+        .list-leave-active {
             transition: all 1s;
         }
 
-        .list-enter, .list-leave-to {
+        .list-enter,
+        .list-leave-to {
             opacity: 0;
             transform: translateY(30px);
+        }
+
+        .flip-list-move {
+            transition: transform 1s;
+        }
+
+        .flip-list-item {
+            display: inline-block;
+            margin-right: 10px;
+            transition: all 1s;
+        }
+
+        .flip-list-enter,
+        .flip-list-leave-to {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .flip-list-leave-active {
+            position: absolute;
         }
     </style>
 </head>
@@ -149,6 +174,15 @@
             </span>
         </transition-group>
     </div>
+    <!-- 列表排序过渡，v-move属性可以改变定位 -->
+    <div id="demo7">
+        <button @click="shuffle">Shuffle</button>
+        <button @click="add">Add</button>
+        <button @click="remove">Remove</button>
+        <transition-group name="flip-list" tag="p">
+            <span v-for="item in items" :key="item" class="flip-list-item"> {{ item }} </span>
+        </transition-group>
+    </div>
     <script>
         let vm = new Vue({
             el: '#demo',
@@ -188,9 +222,9 @@
                     Velocity(el, { opacity: 1, fontSize: '1.4em' }, { duration: 300 });
                     Velocity(el, { fontSize: '1em' }, { complete: done });
                 },
-                leave: function(el, done) {
+                leave: function (el, done) {
                     Velocity(el, { translateX: '15px', rotateZ: '50deg' }, { duration: 600 });
-                    Velocity(el, { rotateZ: '100deg'}, { loop: 2 });
+                    Velocity(el, { rotateZ: '100deg' }, { loop: 2 });
                     Velocity(el, {
                         rotateZ: '45deg',
                         translateX: '30px',
@@ -211,7 +245,7 @@
                 },
                 'v-b': {
                     template: `<div>component B</div>`
-                } 
+                }
             }
         })
         let vm6 = new Vue({
@@ -221,14 +255,35 @@
                 nextNum: 10
             },
             methods: {
-                add: function() {
-                    this.items.splice(this.randomIndex(), 0, this.nextNum ++);
+                add: function () {
+                    this.items.splice(this.randomIndex(), 0, this.nextNum++);
                 },
-                remove: function() {
+                remove: function () {
                     this.items.splice(this.randomIndex(), 1);
                 },
-                randomIndex: function() {
+                randomIndex: function () {
                     return Math.floor(Math.random() * this.items.length);
+                }
+            }
+        })
+        let vm7 = new Vue({
+            el: '#demo7',
+            data: {
+                items: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+                nextNum: 10
+            },
+            methods: {
+                shuffle: function () {
+                    this.items = _.shuffle(this.items);
+                },
+                randomIndex: function () {
+                    return Math.floor(Math.random() * this.items.length);
+                },
+                add: function () {
+                    this.items.splice(this.randomIndex(), 0, this.nextNum++);
+                },
+                remove: function () {
+                    this.items.splice(this.randomIndex(), 1);
                 }
             }
         })
