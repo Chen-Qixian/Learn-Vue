@@ -122,7 +122,7 @@
         }
 
         .cell:nth-child(3n) {
-            margin-right: 0; 
+            margin-right: 0;
         }
 
         .cell:nth-child(27n) {
@@ -130,6 +130,10 @@
         }
 
         .cell-move {
+            transition: transform 1s;
+        }
+
+        .staggered-fade-move {
             transition: transform 1s;
         }
     </style>
@@ -222,6 +226,16 @@
             <div v-for="cell in cells" :key="cell.id" class="cell">
                 {{ cell.number }}
             </div>
+        </transition-group>
+    </div>
+    <!-- 列表交错过渡 -->
+    <div id="demo9">
+        <input type="text" v-model="query">
+        <transition-group name="staggered-fade" tag="ul" :css="false" @before-enter="beforeEnter" @enter="enter"
+            @leave="leave">
+            <li v-for="(item, index) in computedList" :key="item.msg" :data-index="index">
+                {{ item.msg }}
+            </li>
         </transition-group>
     </div>
     <script>
@@ -342,6 +356,45 @@
             methods: {
                 shuffle: function () {
                     this.cells = _.shuffle(this.cells);
+                }
+            }
+        })
+        let vm9 = new Vue({
+            el: '#demo9',
+            data: {
+                query: '',
+                list: [
+                    { msg: 'Chris Chen' },
+                    { msg: 'Aurora Zhou' },
+                    { msg: 'Susie Sun' },
+                    { msg: 'Eurus Qin' },
+                    { msg: 'Bright Liu' }
+                ]
+            },
+            computed: {
+                computedList: function () {
+                    let vm = this;
+                    return this.list.filter(function (item) {
+                        return item.msg.toLowerCase().indexOf(vm.query.toLowerCase()) !== -1;
+                    })
+                }
+            },
+            methods: {
+                beforeEnter: function (el) {
+                    el.style.opacity = 0;
+                    el.style.height = 0;
+                },
+                enter: function (el, done) {
+                    let delay = el.dataset.index * 150;
+                    setTimeout(function () {
+                        Velocity(el, { opacity: 1, height: '1.6em' }, { complete: done });
+                    }, delay)
+                },
+                leave: function (el, done) {
+                    let delay = el.dataset.index * 150;
+                    setTimeout(function () {
+                        Velocity(el, { opacity: 0, height: 0 }, { complete: done });
+                    })
                 }
             }
         })
