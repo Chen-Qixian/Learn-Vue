@@ -102,6 +102,36 @@
         .flip-list-leave-active {
             position: absolute;
         }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            width: 238px;
+            margin-top: 10px;
+        }
+
+        .cell {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            width: 25px;
+            height: 25px;
+            border: 1px solid #aaa;
+            margin-right: -1px;
+            margin-bottom: -1px;
+        }
+
+        .cell:nth-child(3n) {
+            margin-right: 0; 
+        }
+
+        .cell:nth-child(27n) {
+            margin-bottom: 0;
+        }
+
+        .cell-move {
+            transition: transform 1s;
+        }
     </style>
 </head>
 
@@ -181,6 +211,17 @@
         <button @click="remove">Remove</button>
         <transition-group name="flip-list" tag="p">
             <span v-for="item in items" :key="item" class="flip-list-item"> {{ item }} </span>
+        </transition-group>
+    </div>
+    <!-- 多维网格的过渡 -->
+    <div id="demo8">
+        <h1>Lazy Sudoku</h1>
+        <p>Keep hitting Shuffle Button Until You Win!</p>
+        <button @click="shuffle">Shuffle</button>
+        <transition-group name="cell" tag="div" class="container">
+            <div v-for="cell in cells" :key="cell.id" class="cell">
+                {{ cell.number }}
+            </div>
         </transition-group>
     </div>
     <script>
@@ -284,6 +325,23 @@
                 },
                 remove: function () {
                     this.items.splice(this.randomIndex(), 1);
+                }
+            }
+        })
+        let vm8 = new Vue({
+            el: '#demo8',
+            data: {
+                cells: Array.apply(null, { length: 81 })
+                    .map(function (_, index) {
+                        return {
+                            id: index,
+                            number: index % 9 + 1
+                        }
+                    })
+            },
+            methods: {
+                shuffle: function () {
+                    this.cells = _.shuffle(this.cells);
                 }
             }
         })
