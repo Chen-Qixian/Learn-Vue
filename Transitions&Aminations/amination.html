@@ -30,7 +30,17 @@
         <span :style="{ backgroundColor: tweenedCSSColor }" class="color-preview"></span>
         <p>{{ tweenedCSSColor }}</p>
     </div>
-
+    <!-- 过渡与组件的结合 -->
+    <div id="demo1">
+        <input type="number" step="20" v-model.number="number1"> +
+        <input type="number" step="20" v-model.number="number2"> =
+        {{ result }}
+        <p>
+            <animated-number :value="number1"></animated-number> +
+            <animated-number :value="number2"></animated-number> =
+            <animated-number :value="result"></animated-number>
+        </p>
+    </div>
     <script>
         let Color = net.brehaut.Color;
 
@@ -55,7 +65,7 @@
                 animatedNumber: function () {
                     return this.tweenedNumber.toFixed(0);
                 },
-                tweenedCSSColor: function() {
+                tweenedCSSColor: function () {
                     return new Color({
                         red: this.tweenedColor.red,
                         green: this.tweenedColor.green,
@@ -80,9 +90,64 @@
                 }
             },
             methods: {
-                updateColor: function() {
+                updateColor: function () {
                     this.color = new Color(this.colorQuery).toRGB();
                     this.colorQuery = '';
+                }
+            }
+        })
+
+        Vue.component('animated-number', {
+            template: '<span>{{ tweeningValue }}</span>',
+            props: {
+                value: {
+                    type: Number,
+                    required: true
+                }
+            },
+            data: function () {
+                return {
+                    tweeningValue: 0
+                }
+            },
+            watch: {
+                value: function (newVal, oldVal) {
+                    this.tween(oldVal, newVal);
+                }
+            },
+            mounted: function() {
+                this.tween(0, this.value);
+            },
+            methods: {
+                tween: function (startVal, endVal) {
+                    let vm = this;
+                    function animate() {
+                        if (TWEEN.update()) {
+                            requestAnimationFrame(animate);
+                        }
+                    }
+
+                    new TWEEN.Tween({ tweeningValue: startVal })
+                        .to({ tweeningValue: endVal }, 500)
+                        .onUpdate(function () {
+                            vm.tweeningValue = this.tweeningValue.toFixed(0);
+                        })
+                        .start();
+
+                    animate();
+                }
+            }
+        })
+
+        let vm1 = new Vue({
+            el: '#demo1',
+            data: {
+                number1: 20,
+                number2: 40
+            },
+            computed: {
+                result: function () {
+                    return this.number1 + this.number2;
                 }
             }
         })
