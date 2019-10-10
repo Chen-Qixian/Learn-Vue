@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Mixins</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+    
+    <script>
+        let myMixin = {
+            created: function() {
+                this.hello();
+            },
+            methods: {
+                hello: function() {
+                    console.log('Hello mixin');
+                }
+            }
+        }
+        // 定义一个使用mixin的组件
+        let Component = Vue.extend({
+            mixins: [myMixin]
+        })
+
+        let component = new Component();  // Hello mixin
+        // 数据对象内部以递归方式合并，重名冲突以组件内容优先
+        let mixin2 = {
+            data: function() {
+                return {
+                    message: 'hello',
+                    foo: 'abc'
+                }
+            }
+        }
+        let vm2 = new Vue({
+            mixins: [mixin2],
+            data: {
+                message: 'world',
+                bar: 'def'
+            },
+            created: function() {
+                console.log(this.$data);
+            }
+        })
+        // 混入对象mixin钩子会在组件钩子前被调用，同名钩子被合并成一个数组
+        let mixin3 = {
+            created: function() {
+                console.log('mixin hook called first');
+            }
+        }
+        let vm3 = new Vue({
+            mixins: [mixin3],
+            created: function() {
+                console.log('component hook called later');
+            }
+        })
+        // 值为对象的选项methods,components,directives，将被合并成一个对象，key冲突时，取组件对象的键值对
+        // Vue.extend使用同样的策略进行合并
+        let mixin4 = {
+            methods: {
+                foo: function(){
+                    console.log('foo');
+                },
+                conflict: function() {
+                    console.log('mixin msg');
+                }
+            }
+        }
+        let vm4 = new Vue({
+            mixins: [mixin4],
+            methods: {
+                bar: function() {
+                    console.log('bar');
+                },
+                conflict: function() {
+                    console.log('component msg');
+                }
+            }
+        })
+        vm4.foo();
+        vm4.bar();
+        vm4.conflict();
+        // 全局混入：慎用！！ 会影响之后实例化的每一个Vue实例，推荐使用上面的自定义选项，如必要，推荐以插件形式发布
+        Vue.mixin({
+            created: function() {
+                let myOption = this.$options.myOption;
+                if(myOption) {
+                    console.log(myOption);
+                }
+            } 
+        })
+        let vm5 = new Vue({
+            myOption: 'Hello from global!'
+        })
+    </script>
+</body>
+</html>
