@@ -15,6 +15,14 @@
     <div id="demo2" v-demo:foo.a.b="message">
     </div>
     <!-- 动态指令参数 -->
+    <div id="demo3basic">
+        <p>Scroll down this page</p>
+        <p v-pin="500">Stick me 500px from top of this page</p>
+    </div>
+    <div id="demo3dynamic">
+        <h3>Scroll down this page of Dynamic Example</h3>
+        <p v-pindy:[direction]="300">I am pinned 300px to the left of this page</p>
+    </div>
     <script>
         // 自定义一个 v-focus 属性
         // 全局注册
@@ -53,6 +61,32 @@
             el: '#demo2',
             data: {
                 message: 'hello!'
+            }
+        })
+        // 非动态参数样例
+        Vue.directive('pin', {
+            bind: function(el, binding) {
+                el.style.position = 'fixed';
+                el.style.top = binding.value + 'px';
+            }
+        })
+        let vm3_1 = new Vue({
+            el: '#demo3basic'
+        })
+        // 动态参数样例
+        Vue.directive('pindy', {
+            bind: function(el, binding) {
+                el.style.position= 'fixed';
+                var s = (binding.arg == 'left') ? 'left' : 'top';
+                el.style[s] = binding.value + 'px';
+            }
+        })
+        let vm3_2 = new Vue({
+            el: '#demo3dynamic',
+            data: function() {
+                return {
+                    direction: 'left'
+                }
             }
         })
     </script>
