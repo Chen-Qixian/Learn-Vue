@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>selfDefIns</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+    <div id="demo">
+        <input type="text" v-focus>
+    </div>
+    <!-- 使用自定义钩子样例，钩子函数包括：inserted,bind,update,componentUpdated,unbind -->
+    <div id="demo2" v-demo:foo.a.b="message">
+    </div>
+    <!-- 动态指令参数 -->
+    <script>
+        // 自定义一个 v-focus 属性
+        // 全局注册
+        Vue.directive('focus', {
+            // 当元素被插入DOM中时，聚焦元素
+            inserted: function(el) {
+                el.focus();
+            }
+        })
+        let vm = new Vue({
+            el: '#demo',
+            // 局部注册
+            directives: {
+                focus: {
+                    inserted: function(el) {
+                        el.focus();
+                    }
+                }
+            }
+        })
+        // 钩子函数的参数，除el外都应是只读的
+        Vue.directive('demo', {
+            bind: function(el, binding, vnode) {
+                let s = JSON.stringify;
+                el.innerHTML = `
+                    name: ${s(binding.name)} <br>
+                    value: ${s(binding.value)} <br>
+                    expression: ${s(binding.expression)} <br>
+                    argument: ${s(binding.arg)} <br>
+                    modifiers: ${s(binding.modifiers)} <br>
+                    vnode keys: ${Object.keys(vnode).join(', ')} <br>
+                `
+            }
+        })
+        let vm2 = new Vue({
+            el: '#demo2',
+            data: {
+                message: 'hello!'
+            }
+        })
+    </script>
+</body>
+</html>
