@@ -23,6 +23,11 @@
         <h3>Scroll down this page of Dynamic Example</h3>
         <p v-pindy:[direction]="300">I am pinned 300px to the left of this page</p>
     </div>
+    <!-- 函数简写与对象字面量 -->
+    <div id="demo4">
+        <!-- 指令函数能接收所有合法的JS表达式 -->
+        <div v-obj="{ color: 'white', text: 'hello' }"></div>
+    </div>
     <script>
         // 自定义一个 v-focus 属性
         // 全局注册
@@ -88,6 +93,14 @@
                     direction: 'left'
                 }
             }
+        })
+        // 函数简写：bind和update大多数时候会触发相同行为，且不关注其他钩子时，可以简写
+        Vue.directive('obj', function(el, binding) {
+            console.log(binding.value.color); // white
+            console.log(binding.value.text); // hello
+        })
+        let vm4 = new Vue({
+            el: '#demo4'
         })
     </script>
 </body>
